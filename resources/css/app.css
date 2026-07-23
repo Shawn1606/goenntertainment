@@ -2,8 +2,55 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand-purple: #9b6dff;
+    --color-brand-pink: #ff6bb5;
+    --color-brand-peach: #ffb4a2;
+    --color-brand-lavender: #e8d5ff;
+}
+
+@layer components {
+    .goenn-bg {
+        background:
+            radial-gradient(ellipse 80% 50% at 20% 20%, rgba(232, 213, 255, 0.9) 0%, transparent 60%),
+            radial-gradient(ellipse 70% 60% at 80% 30%, rgba(255, 180, 162, 0.85) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 50% at 50% 80%, rgba(255, 107, 181, 0.4) 0%, transparent 50%),
+            linear-gradient(160deg, #f5eeff 0%, #fff0eb 40%, #fde8f4 100%);
+        min-height: 100dvh;
+    }
+
+    .brand-gradient-text {
+        background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-pink) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .auth-card {
+        @apply rounded-3xl bg-white/90 backdrop-blur-sm shadow-xl border border-white/60 p-6 sm:p-8;
+    }
+
+    .auth-input {
+        @apply w-full rounded-2xl border border-purple-100 bg-white/80 py-3 pl-11 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-200;
+    }
+
+    .auth-btn-primary {
+        @apply w-full rounded-2xl bg-gradient-to-r from-[#9b6dff] to-[#ff6bb5] py-3 text-sm font-semibold text-white shadow-md transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-300;
+    }
+
+    .auth-btn-google {
+        @apply flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white py-3 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50;
+    }
+
+    .interest-chip {
+        @apply flex cursor-pointer items-center gap-2 rounded-2xl border border-purple-100 bg-white/70 px-3 py-2 text-sm transition has-[:checked]:border-purple-400 has-[:checked]:bg-purple-50 has-[:checked]:text-purple-700;
+    }
+
+    .account-type-option {
+        @apply flex flex-1 cursor-pointer flex-col items-center rounded-2xl border border-purple-100 bg-white/70 p-4 text-center transition has-[:checked]:border-purple-400 has-[:checked]:bg-purple-50;
+    }
 }
