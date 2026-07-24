@@ -25,3 +25,16 @@ Eintrags-Format:
 - Getestet: commit-msg-Hook (blockt `@`-Subjects, akzeptiert Konvention). PHP über Herd
   `php.bat` (git-bash sieht kein `php`).
 - Hinweis: `php artisan test` = 5 grün, alle Migrationen gelaufen (Stand dieser Session).
+
+## 2026-07-24 · Ticket #1: Registration/Log-In – Views
+- Geändert: `resources/views/welcome.blade.php` (neu aufgebaut), `resources/views/auth/`
+  (register neu, login/forgot-password/reset-password/complete-google-registration),
+  `resources/views/home.blade.php` (neu), `app/Http/Controllers/Auth/LoginController.php`
+  (ungenutzte create() + View-Import entfernt), `routes/web.php` (GET login → Startseite).
+- Getan: Startseite mit Login-Sheet, das per Klick/Hochwischen von unten hochfährt
+  (Vanilla-JS, kein Alpine); Auto-Öffnen bei Fehlern/Status. Register im Design mit
+  Interessen-Chips (min 3) + Konto-Typ. Alle Auth-Views nutzen `layouts.auth` + CSS-
+  Bausteine (`auth-input`, `auth-btn-primary`, `interest-chip`, `account-type-option`).
+- Getestet: Pint = Baseline (4, unverändert), Pest 5/5 grün. HTTP: `/`, `/register`,
+  `/forgot-password` → 200 (welcome enthält Brand/Sheet/Login-Form). In-App-Browser
+  konnte die lokale `.test`-Domain nicht klickend prüfen (Freigabe-Policy).
