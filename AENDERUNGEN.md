@@ -56,3 +56,61 @@ und fängt einen typischen Copy-Paste-Fehler ab (Nachricht beginnt mit `@`).
 Formatierer-Baseline = 4 Dateien.
 
 **Nächster Schritt:** Ticket #1 (Registration / Log-In) – fehlende Views bauen.
+
+---
+
+## 2026-07-24 · API für die Handy-App (Login/Registrieren)
+
+**Worum ging's:** Die Web-Seiten (Blade) kann die Expo-Handy-App nicht nutzen – die
+braucht eine **API**, die reines JSON zurückgibt und mit einem **Token** statt Cookie
+arbeitet. Genau das habe ich gebaut. Die Web-Seiten bleiben unverändert; die API kommt
+**daneben** dazu. Ab jetzt gilt: **App-Code lebt im eigenen Repo `goenntertainment-app`**,
+dieses Repo hier ist nur noch das Backend.
+
+**Neue Endpunkte:**
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| POST | `/api/register` | Registrieren, gibt Token |
+| POST | `/api/login` | Login, gibt Token |
+| POST | `/api/logout` | Token löschen |
+| GET | `/api/user` | Eigener User (nur mit Token) |
+| POST | `/api/auth/google` | App schickt Google-Token → bekommt App-Token |
+
+**Wichtigster Code – Login gibt einen Token zurück** (aus `Api/AuthController.php`).
+In einfachen Worten: E-Mail + Passwort prüfen; stimmt es, bekommt die App einen langen
+Schlüssel (`token`), den sie danach bei jeder Anfrage mitschickt.
+
+```php
+public function login(LoginRequest $request): JsonResponse
+{
+    $user = User::query()->where('email', $request->string('email')->toString())->first();
+
+    if ($user === null || ! Hash::check($request->string('password')->toString(), (string) $user->password)) {
+        throw ValidationException::withMessages(['email' => __('auth.failed')]);
+    }
+
+    return $this->tokenResponse($user, $request->string('device_name', 'mobile')->toString());
+}
+```
+
+**Google-Login für die App** (aus `Api/GoogleAuthController.php`): die App loggt sich bei
+Google ein, holt dort einen `access_token` und schickt ihn hierher. Wir fragen damit bei
+Google die Nutzerdaten ab, legen den User bei Bedarf an und geben einen App-Token zurück.
+
+```php
+$googleUser = Socialite::driver('google')->stateless()
+    ->userFromToken($request->string('access_token')->toString());
+// ... User finden/anlegen ...
+$token = $user->createToken($deviceName)->plainTextToken;
+```
+
+**Getestet:** Pint (Formatierer) grün, Baseline von 4 auf 3 gesenkt. 14/14 Tests grün
+(9 neue für die API). Zusätzlich echt im Browser/HTTP geprüft: ohne Token → 401,
+falsches Passwort → 422, jeweils sauberes JSON.
+
+**Noch von dir nötig:** In der Google Cloud Console einen eigenen OAuth-Client für die
+Expo-App anlegen (sonst funktioniert `/api/auth/google` nicht).
+
+**Nächster Schritt:** In der App (`goenntertainment-app`) den Login-Screen an diese API
+anschließen.

@@ -25,3 +25,18 @@ Eintrags-Format:
 - Getestet: commit-msg-Hook (blockt `@`-Subjects, akzeptiert Konvention). PHP über Herd
   `php.bat` (git-bash sieht kein `php`).
 - Hinweis: `php artisan test` = 5 grün, alle Migrationen gelaufen (Stand dieser Session).
+
+## 2026-07-24 · feat(api): JSON-Auth-API für Expo-App (Sanctum + Google)
+- Geändert: `app/Models/User.php` (HasApiTokens), `bootstrap/app.php` (api-Routing),
+  `routes/api.php`, `config/cors.php`, `config/sanctum.php`, `.env.example` (FRONTEND_URL),
+  neue Migration `personal_access_tokens`, `app/Http/Controllers/Api/`
+  (AuthController, GoogleAuthController), `app/Http/Requests/Api/` (Register/Login/GoogleLogin),
+  `tests/Feature/Api/AuthTest.php`, `.githooks/pint-baseline.txt` (4→3).
+- Getan: Sanctum via `install:api`. Token-Auth-Endpunkte register/login/logout/user +
+  Google-Login (`/api/auth/google`: App schickt Google-access_token → App-Token via
+  Socialite `userFromToken`). Web-Blade-Views unangetastet. Trennung: App-Code lebt im
+  separaten Repo `goenntertainment-app`, dieses Repo bleibt reines Backend.
+- Getestet: Pint grün (Baseline 3), Pest 14/14 grün (9 neu). Echt per HTTP:
+  `/api/user`→401, `/api/login` falsch→422 (sauberes JSON).
+- PR: https://github.com/Shawn1606/goenntertainment/pull/22 (nach OK des Users gemergt).
+- Offen beim User: eigener Google-OAuth-Client für Expo in Google Cloud Console.
