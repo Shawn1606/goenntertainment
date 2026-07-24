@@ -114,3 +114,54 @@ Expo-App anlegen (sonst funktioniert `/api/auth/google` nicht).
 
 **Nächster Schritt:** In der App (`goenntertainment-app`) den Login-Screen an diese API
 anschließen.
+
+---
+
+## 2026-07-24 · Ticket #3 (Schritt 1/2): Activity-Backend
+
+**Worum ging's:** Grundlage für „Event/Activity erstellen". Bis jetzt gab es Activities nur
+als Beispiel-Daten in der App. Jetzt können Activities echt in der Datenbank angelegt und
+gelesen werden. Der Plus-Button in der App (Schritt 2) baut später darauf auf.
+
+**Neue Tabellen:** `activities` (Titel, Beschreibung, Ort, Start-Zeit, optionales Banner-Bild,
+Host = User) und `activity_interest` (verknüpft eine Activity mit bis zu 5 Interessen).
+
+**Neue API-Endpunkte:**
+
+| Methode | Pfad | Wofür |
+|---|---|---|
+| GET | `/api/interests` | Liste der Interessen (öffentlich, für die Auswahl) |
+| GET | `/api/activities` | Alle Activities (nur mit Token) |
+| POST | `/api/activities` | Neue Activity anlegen (nur mit Token) |
+
+**Wichtigster Code – Activity anlegen** (aus `Api/ActivityController.php`). In einfachen
+Worten: optionales Banner-Bild speichern, Activity mit dem eingeloggten User als Host
+anlegen, danach die gewählten Interessen verknüpfen.
+
+```php
+$bannerPath = $request->hasFile('banner')
+    ? $request->file('banner')->store('banners', 'public')
+    : null;
+
+$activity = Activity::query()->create([
+    'user_id' => $request->user()->id,   // Host = eingeloggter User
+    'title' => $request->string('title')->toString(),
+    // ... description, location, starts_at ...
+    'banner_path' => $bannerPath,
+]);
+
+if ($request->filled('interests')) {
+    $activity->interests()->sync($request->input('interests'));  // max 5 (Validierung)
+}
+```
+
+**Regeln (Validierung, `StoreActivityRequest`):** Titel/Beschreibung/Ort/Start-Zeit sind
+Pflicht; Banner optional (Bild, max 5 MB); höchstens 5 Interessen.
+
+**Getestet:** Pint sauber (keine neuen Baseline-Fehler), Pest 23/23 grün (10 neue Tests für
+Activities + Interessen, inkl. Banner-Upload und „max 5 Interessen"). Zusätzlich echt per
+HTTP geprüft: `/interests` → 200, Activity anlegen → 201, Liste → 200.
+
+**Noch offen (Schritt 2):** In der App das Plus-Button-Formular bauen (Foto aus Galerie/
+Kamera, Interessen, Beschreibung, Ort, Datum/Zeit) und an diese API anschließen; Home-Screen
+auf echte Activities umstellen.

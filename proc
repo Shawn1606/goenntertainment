@@ -40,3 +40,16 @@ Eintrags-Format:
   `/api/user`→401, `/api/login` falsch→422 (sauberes JSON).
 - PR: https://github.com/Shawn1606/goenntertainment/pull/22 (nach OK des Users gemergt).
 - Offen beim User: eigener Google-OAuth-Client für Expo in Google Cloud Console.
+
+## 2026-07-24 · Ticket #3 Schritt 1/2: Activity-Backend (feature/ticket-3-create-activity)
+- Neu: Tabellen `activities` (user_id=Host, title, description, location, starts_at,
+  banner_path nullable) + Pivot `activity_interest`. Model `Activity` (host(), interests()).
+- API: `GET /api/interests` (public, InterestController), `GET|POST /api/activities`
+  (auth:sanctum, ActivityController). Banner-Upload auf public-Disk (`storage:link`).
+  Validierung `StoreActivityRequest`: title/description/location/starts_at required,
+  banner nullable image max 5MB, interests max 5 (exists).
+- Getestet: Pint sauber (Baseline unverändert 3), Pest 23/23 (10 neu). HTTP: interests 200,
+  create 201, list 200. Test-Datensatz danach wieder gelöscht.
+- PR: https://github.com/Shawn1606/goenntertainment/pull/24. Board #3 → In progress.
+- Offen (Schritt 2, App-Repo): Plus-Button-Formular (Foto Galerie/Kamera, Interessen,
+  Beschreibung, Ort, Datum/Zeit) an API anschließen; Home auf echte Activities umstellen.
