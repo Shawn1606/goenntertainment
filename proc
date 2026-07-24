@@ -1,0 +1,27 @@
+# proc – Änderungs-Log für künftige AI-Sessions
+
+Dieses File ist das laufende Protokoll aller Änderungen am Projekt Gönntertainment.
+Jede AI-Session hängt **unten** einen Eintrag pro Ticket/Änderung an. Neueste zuletzt.
+
+Kontext für neue Sessions: siehe `CLAUDE.md` (Index), `PROJECT_RULES.md` (Regeln),
+`TASK_SYSTEM.md` (wie Tickets laufen). Aufgaben = GitHub-Board `Projects/2` (via `gh`).
+
+Eintrags-Format:
+```
+## <YYYY-MM-DD> · <Ticket #N: Titel | chore>
+- Geändert: <Dateien>
+- Getan: <kurz>
+- Getestet: <Pint / Tests / Browser>
+```
+
+---
+
+## 2026-07-24 · chore: Workflow-Setup eingerichtet
+- Geändert: `CLAUDE.md`, `PROJECT_RULES.md`, `TASK_SYSTEM.md`, `.githooks/` (commit-msg,
+  pre-push, pint-baseline.txt=4), `.claude/commands/` (8 Skills), `tasklists/briefs/`, `proc`.
+- Getan: Portablen Workflow (WORKFLOW-PORTABEL.md) an Laravel + GitHub-Board angepasst.
+  Task-Quelle = Board Projects/2 (via gh). Hooks aktiviert (`git config core.hooksPath .githooks`).
+  Check-Befehle: `php vendor/bin/pint --test` (Baseline 4) + `php artisan test` (5 grün).
+- Getestet: commit-msg-Hook (blockt `@`-Subjects, akzeptiert Konvention). PHP über Herd
+  `php.bat` (git-bash sieht kein `php`).
+- Hinweis: `php artisan test` = 5 grün, alle Migrationen gelaufen (Stand dieser Session).
