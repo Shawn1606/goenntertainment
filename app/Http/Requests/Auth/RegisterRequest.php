@@ -36,10 +36,14 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'interests.required' => 'Bitte wähle mindestens 3 Interessen aus.',
             'interests.min' => 'Bitte wähle mindestens 3 Interessen aus.',
             'username.unique' => 'Dieser Benutzername ist bereits vergeben.',
+            'username.alpha_dash' => 'Der Benutzername darf nur Buchstaben, Zahlen, Bindestriche und Unterstriche enthalten.',
             'email.unique' => 'Diese E-Mail-Adresse ist bereits registriert.',
             'password.min' => 'Das Passwort muss mindestens 8 Zeichen lang sein.',
+            'password.letters' => 'Das Passwort muss mindestens einen Buchstaben enthalten.',
+            'password.numbers' => 'Das Passwort muss mindestens eine Zahl enthalten.',
         ];
     }
 }

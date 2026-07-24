@@ -38,3 +38,7 @@ Eintrags-Format:
 - Getestet: Pint = Baseline (4, unverändert), Pest 5/5 grün. HTTP: `/`, `/register`,
   `/forgot-password` → 200 (welcome enthält Brand/Sheet/Login-Form). In-App-Browser
   konnte die lokale `.test`-Domain nicht klickend prüfen (Freigabe-Policy).
+- Nachtrag: `InterestSeeder` (10 Einträge, existierte schon) auf Dev-DB ausgeführt –
+  Register hatte vorher keine wählbaren Interessen ("interests required"). Zusätzlich
+  deutsche Validierungs-Meldungen für `username.alpha_dash` und `password.letters/numbers`
+  in RegisterRequest + CompleteGoogleRegistrationRequest ergänzt.
