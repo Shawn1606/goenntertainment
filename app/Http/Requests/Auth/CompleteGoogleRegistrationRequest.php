@@ -32,8 +32,10 @@ class CompleteGoogleRegistrationRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'interests.required' => 'Bitte wähle mindestens 3 Interessen aus.',
             'interests.min' => 'Bitte wähle mindestens 3 Interessen aus.',
             'username.unique' => 'Dieser Benutzername ist bereits vergeben.',
+            'username.alpha_dash' => 'Der Benutzername darf nur Buchstaben, Zahlen, Bindestriche und Unterstriche enthalten.',
         ];
     }
 }

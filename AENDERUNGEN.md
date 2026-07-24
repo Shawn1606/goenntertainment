@@ -56,3 +56,54 @@ und fängt einen typischen Copy-Paste-Fehler ab (Nachricht beginnt mit `@`).
 Formatierer-Baseline = 4 Dateien.
 
 **Nächster Schritt:** Ticket #1 (Registration / Log-In) – fehlende Views bauen.
+
+---
+
+## 2026-07-24 · Ticket #1: Registration / Log-In – Ansichten (Views)
+
+**Worum ging's:** Die Logik für Registrierung und Login (Controller, Routen, Datenbank)
+war schon fertig. Es fehlten nur die **Ansichten** – also die Seiten, die der Nutzer
+sieht. Die habe ich im Gönntertainment-Look gebaut.
+
+**Neue / geänderte Seiten:**
+
+| Datei | Was sie tut |
+|---|---|
+| `welcome.blade.php` | Startseite: „Willkommen bei Gönntertainment" + Login-Sheet, das von unten hochfährt |
+| `auth/register.blade.php` | Konto anlegen: Name, Benutzername, E-Mail, Passwort, Konto-Typ, min. 3 Interessen |
+| `auth/forgot-password.blade.php` | Passwort-Reset anfordern |
+| `auth/reset-password.blade.php` | Neues Passwort setzen |
+| `auth/complete-google-registration.blade.php` | Google-Nutzer: Profil vervollständigen |
+| `home.blade.php` | Startseite nach dem Login (Begrüßung, Interessen, Abmelden) |
+
+**Kernstück – das Login-Sheet fährt hoch.** In einfachen Worten: Unten liegt eine Karte
+außerhalb des Bildschirms (`translate-y-full`). Beim Klick auf „Anmelden" oder beim
+Hochwischen wird diese Klasse entfernt – die Karte gleitet nach oben ins Bild. Beim
+Runterwischen oder Klick auf den Hintergrund gleitet sie wieder weg.
+
+```js
+function openSheet() {
+    sheet.classList.remove('translate-y-full');          // Karte hochfahren
+    backdrop.classList.remove('opacity-0', 'pointer-events-none'); // Hintergrund abdunkeln
+}
+// Hochwischen erkennen: Finger-Startpunkt merken, beim Loslassen Differenz messen
+document.addEventListener('touchend', e => {
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy < -60) openSheet();   // deutlich nach oben gewischt
+    if (dy > 60)  closeSheet();  // nach unten gewischt
+});
+```
+
+**Kleine Logik-Anpassung:** Weil der Login nur noch als Sheet auf der Startseite lebt,
+leitet die Adresse `/login` jetzt einfach auf die Startseite um (statt eine eigene
+Login-Seite zu zeigen). Eine dadurch überflüssige Methode im `LoginController` habe ich
+entfernt.
+
+**Getestet:** Formatierer (Pint) unverändert auf Baseline, Tests 5/5 grün, Startseite +
+Register + Passwort-vergessen liefern im Browser Status 200. Das echte Durchklicken der
+Wisch-Geste musst du einmal kurz auf dem Handy/Emulator antippen – die lokale `.test`-
+Adresse ließ sich aus meinem Test-Browser nicht bedienen.
+
+**Hinweis am Rande:** Beim Start lag das Regelwerk (`CLAUDE.md` & Co.) nur auf einem
+eigenen Branch und noch nicht auf `main`. Das wurde per PR #20 nach `main` gemergt, dann
+habe ich Ticket #1 sauber darauf aufgesetzt.

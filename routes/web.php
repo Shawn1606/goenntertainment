@@ -19,7 +19,12 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::middleware('guest')->group(function (): void {
-    Route::get('login', [LoginController::class, 'create'])->name('login');
+    // Login ist nur das Sheet auf der Startseite – GET leitet dorthin (Flash-Meldung bleibt erhalten).
+    Route::get('login', function () {
+        session()->reflash();
+
+        return redirect()->route('welcome');
+    })->name('login');
     Route::post('login', [LoginController::class, 'store']);
     Route::get('register', [RegisterController::class, 'create'])->name('register');
     Route::post('register', [RegisterController::class, 'store']);
