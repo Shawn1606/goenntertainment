@@ -6,11 +6,17 @@
 repo_root=$(git rev-parse --show-toplevel)
 baseline_file="$repo_root/.githooks/pint-baseline.txt"
 
-# PHP aus Laravel Herd finden (in git-bash ist php nicht auf dem PATH)
-export PATH="$PATH:$HOME/.config/herd/bin"
+# PHP aus Laravel Herd finden. Git fuehrt Hooks mit minimalem Environment aus
+# (anderes HOME/PATH), daher zuerst feste Dateipfade pruefen, dann PATH.
+export PATH="$PATH:$HOME/.config/herd/bin:$USERPROFILE/.config/herd/bin"
 PHP=""
-for c in php php.bat; do
-  if command -v "$c" >/dev/null 2>&1; then PHP="$c"; break; fi
+for cand in \
+  "$HOME/.config/herd/bin/php.bat" \
+  "$USERPROFILE/.config/herd/bin/php.bat" \
+  "/c/Users/shawn/.config/herd/bin/php.bat" \
+  php.bat php ; do
+  if [ -f "$cand" ]; then PHP="$cand"; break; fi
+  if command -v "$cand" >/dev/null 2>&1; then PHP="$cand"; break; fi
 done
 if [ -z "$PHP" ]; then
   echo "pre-push: kein PHP gefunden - ueberspringe Pint-Check (nicht blockiert)." >&2
