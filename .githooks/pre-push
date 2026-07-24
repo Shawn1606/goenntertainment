@@ -1,0 +1,54 @@
+#!/bin/sh
+# Blockt Pushes, die den Code-Stil verschlechtern (Laravel Pint gegen Baseline).
+# Aktivieren: git config core.hooksPath .githooks
+# Notausgang:  git push --no-verify   (nur mit gutem Grund)
+
+repo_root=$(git rev-parse --show-toplevel)
+baseline_file="$repo_root/.githooks/pint-baseline.txt"
+
+# PHP aus Laravel Herd finden. Git fuehrt Hooks mit minimalem Environment aus
+# (anderes HOME/PATH), daher zuerst feste Dateipfade pruefen, dann PATH.
+export PATH="$PATH:$HOME/.config/herd/bin:$USERPROFILE/.config/herd/bin"
+PHP=""
+for cand in \
+  "$HOME/.config/herd/bin/php.bat" \
+  "$USERPROFILE/.config/herd/bin/php.bat" \
+  "/c/Users/shawn/.config/herd/bin/php.bat" \
+  php.bat php ; do
+  if [ -f "$cand" ]; then PHP="$cand"; break; fi
+  if command -v "$cand" >/dev/null 2>&1; then PHP="$cand"; break; fi
+done
+if [ -z "$PHP" ]; then
+  echo "pre-push: kein PHP gefunden - ueberspringe Pint-Check (nicht blockiert)." >&2
+  exit 0
+fi
+
+echo "pre-push: Pint-Check laeuft..."
+
+# Anzahl Dateien mit Style-Themen zaehlen (Pint gibt bei Nicht-TTY JSON aus)
+dirty=$("$PHP" vendor/bin/pint --test 2>/dev/null | grep -o '"path":' | wc -l | tr -d ' ')
+[ -z "$dirty" ] && dirty=0
+
+if [ -f "$baseline_file" ]; then
+  baseline=$(tr -dc '0-9' < "$baseline_file")
+else
+  baseline=0
+fi
+[ -z "$baseline" ] && baseline=0
+
+if [ "$dirty" -gt "$baseline" ]; then
+  echo "pre-push BLOCKIERT: $dirty Dateien mit Style-Themen, Baseline ist $baseline." >&2
+  echo "Du hast $((dirty - baseline)) neue eingebaut. Fix: php vendor/bin/pint" >&2
+  exit 1
+fi
+
+if [ "$dirty" -lt "$baseline" ]; then
+  echo "pre-push BLOCKIERT: nur noch $dirty Style-Themen (Baseline $baseline) - gut!" >&2
+  echo "Bitte die Baseline mit-senken, sonst schuetzt sie nichts mehr:" >&2
+  echo "  echo $dirty > .githooks/pint-baseline.txt" >&2
+  echo "  git add .githooks/pint-baseline.txt && git commit --amend --no-edit" >&2
+  exit 1
+fi
+
+echo "pre-push: Pint ok ($dirty Style-Themen, Baseline $baseline). Alles gruen."
+exit 0

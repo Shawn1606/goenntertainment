@@ -1,0 +1,38 @@
+#!/bin/sh
+# Prueft die Commit-Message. Aktivieren: git config core.hooksPath .githooks
+# Notausgang: git commit --no-verify
+
+msg_file="$1"
+subject=$(head -n 1 "$msg_file")
+
+# Merge-/Revert-Commits durchlassen
+case "$subject" in
+  "Merge "*|"Revert "*) exit 0 ;;
+esac
+
+# 1. PowerShell-Here-String-Unfall: @'...'@ im Bash-Tool macht das Subject zu "@"
+case "$subject" in
+  @*)
+    echo "commit-msg: Subject beginnt mit '@'." >&2
+    echo "Passiert bei PowerShell-Here-Strings (@'...'@) im Bash-Tool." >&2
+    echo "Nimm mehrere -m Flags oder ein Heredoc (git commit -F - <<'EOF')." >&2
+    exit 1
+    ;;
+esac
+
+# 2. Leeres Subject
+if [ -z "$(echo "$subject" | tr -d '[:space:]')" ]; then
+  echo "commit-msg: Subject ist leer." >&2
+  exit 1
+fi
+
+# 3. Konvention: <typ>(<bereich>): <text>   (PROJECT_RULES.md §7)
+if ! echo "$subject" | grep -Eq '^(feat|fix|refactor|docs|chore|style|security|perf|test)(\([a-z0-9_-]+\))?: .+'; then
+  echo "commit-msg: Subject folgt nicht der Konvention (PROJECT_RULES.md §7)." >&2
+  echo "Erwartet: <typ>(<bereich>): <Beschreibung>" >&2
+  echo "Typen:    feat, fix, refactor, docs, chore, style, security, perf, test" >&2
+  echo "Bekommen: $subject" >&2
+  exit 1
+fi
+
+exit 0
