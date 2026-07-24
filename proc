@@ -42,3 +42,5 @@ Eintrags-Format:
   Register hatte vorher keine wählbaren Interessen ("interests required"). Zusätzlich
   deutsche Validierungs-Meldungen für `username.alpha_dash` und `password.letters/numbers`
   in RegisterRequest + CompleteGoogleRegistrationRequest ergänzt.
+- Fix home.blade.php: `@{{ $user->username }}` gab wegen des `@` den Blade-Ausdruck als
+  Text aus → geändert zu `{{ '@'.$user->username }}`, zeigt jetzt den echten Username.

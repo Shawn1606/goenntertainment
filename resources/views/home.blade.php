@@ -24,7 +24,7 @@
         {{-- Begrüßung --}}
         <div class="auth-card mb-6">
             <h1 class="text-2xl font-bold tracking-tight">Hallo {{ $user->name }} 👋</h1>
-            <p class="mt-1 text-sm text-gray-600">@{{ $user->username }}</p>
+            <p class="mt-1 text-sm text-gray-600">{{ '@'.$user->username }}</p>
 
             <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <span class="rounded-full bg-purple-50 px-3 py-1 font-medium text-purple-700">
