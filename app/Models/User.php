@@ -27,6 +27,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Interest::class);
     }
 
+    /**
+     * Aktivitäten, denen der User beigetreten ist.
+     *
+     * @return BelongsToMany<Activity, $this>
+     */
+    public function joinedActivities(): BelongsToMany
+    {
+        return $this->belongsToMany(Activity::class)->withTimestamps();
+    }
+
     public function hasCompletedProfile(): bool
     {
         return $this->username !== null
