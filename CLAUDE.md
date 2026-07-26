@@ -7,6 +7,23 @@
 > max. 3–5 kurze Sätze oder eine kleine Tabelle. Lieber zu kurz; der User fragt nach.
 > **Sprache: Deutsch.**
 
+## 0. RICHTUNGSWECHSEL (gilt vor allem anderen)
+
+- **Einziger Arbeitsort: das Expo-App-Projekt** `C:\Users\shawn\Herd\goenntertainment-app`.
+  Am Laravel-Projekt wird **nicht mehr entwickelt**.
+- **Backend zieht in die App:** Das gesamte Backend wird Schritt für Schritt von
+  PHP/Laravel nach **JS/TS** ins App-Projekt umgeschrieben (Expo-Router API-Routes).
+  Ziel: Laravel wird vollständig abgelöst.
+- **Laravel = nur Übergang:** dient bis dahin nur noch als Datenquelle/Vorlage.
+  Danach hat es keinen Zweck mehr. Kein neues Feature, kein Fix in Laravel.
+- **Rückverfolgung ausschließlich im App-Projekt:** Schritte werden in
+  `change/ai.md` (für AI) bzw. `change/human.md` (für dich) geführt – nicht mehr
+  in Laravel `proc`/`AENDERUNGEN.md`.
+- **Checks im App-Kontext:** statt Pint/Pest gelten `expo lint`, TypeScript-Check
+  und JS-Tests. (Die alten `/task-check`-PHP-Schritte entfallen hier.)
+- Branch-Regeln, Stopp-Pflichten und die 5 kritischen Regeln gelten unverändert –
+  nur eben im App-Projekt.
+
 ## 1. Was das hier ist
 
 **Gönntertainment** – Social-Plattform für lokale „Activities" (Nutzer erstellen/beitreten
