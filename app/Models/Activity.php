@@ -32,6 +32,16 @@ class Activity extends Model
     }
 
     /**
+     * Teilnehmer, die der Aktivität beigetreten sind.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function participants(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

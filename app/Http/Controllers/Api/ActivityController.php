@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreActivityRequest;
 use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ActivityController extends Controller
 {
-    private const WITH = ['host:id,name,username', 'interests:id,name,slug,icon'];
+    private const WITH = ['host:id,name,username', 'interests:id,name,slug,icon', 'participants:id,name,username'];
 
     public function index(): JsonResponse
     {
@@ -22,6 +23,13 @@ class ActivityController extends Controller
             ->all();
 
         return response()->json(['data' => $activities]);
+    }
+
+    public function show(Activity $activity): JsonResponse
+    {
+        $activity->load(self::WITH);
+
+        return response()->json(['data' => $this->transform($activity)]);
     }
 
     public function store(StoreActivityRequest $request): JsonResponse
@@ -46,6 +54,30 @@ class ActivityController extends Controller
         $activity->load(self::WITH);
 
         return response()->json(['data' => $this->transform($activity)], 201);
+    }
+
+    /**
+     * Der eingeloggte User tritt der Aktivität bei (idempotent).
+     */
+    public function join(Request $request, Activity $activity): JsonResponse
+    {
+        $activity->participants()->syncWithoutDetaching([$request->user()->id]);
+
+        $activity->load(self::WITH);
+
+        return response()->json(['data' => $this->transform($activity)]);
+    }
+
+    /**
+     * Der eingeloggte User verlässt die Aktivität wieder.
+     */
+    public function leave(Request $request, Activity $activity): JsonResponse
+    {
+        $activity->participants()->detach($request->user()->id);
+
+        $activity->load(self::WITH);
+
+        return response()->json(['data' => $this->transform($activity)]);
     }
 
     /**
@@ -74,6 +106,15 @@ class ActivityController extends Controller
                     'icon' => $interest->icon,
                 ])
                 ->all(),
+            'participants' => $activity->participants
+                ->map(fn ($participant) => [
+                    'id' => $participant->id,
+                    'name' => $participant->name,
+                    'username' => $participant->username,
+                ])
+                ->all(),
+            'participants_count' => $activity->participants->count(),
+            'is_joined' => $activity->participants->contains('id', auth()->id()),
         ];
     }
 }

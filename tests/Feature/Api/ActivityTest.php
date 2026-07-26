@@ -85,6 +85,71 @@ test('activity anlegen lehnt mehr als fünf Interessen ab', function () {
     ])->assertStatus(422)->assertJsonValidationErrors(['interests']);
 });
 
+test('activity-detail braucht einen Token', function () {
+    $activity = Activity::factory()->create();
+
+    $this->getJson("/api/activities/{$activity->id}")->assertUnauthorized();
+});
+
+test('activity-detail gibt eine einzelne Aktivität zurück', function () {
+    $user = User::factory()->create();
+    $activity = Activity::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->getJson("/api/activities/{$activity->id}")
+        ->assertOk()
+        ->assertJsonPath('data.id', $activity->id)
+        ->assertJsonPath('data.is_joined', false)
+        ->assertJsonPath('data.participants_count', 0);
+});
+
+test('beitreten fügt den User als Teilnehmer hinzu', function () {
+    $user = User::factory()->create();
+    $activity = Activity::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->postJson("/api/activities/{$activity->id}/join")
+        ->assertOk()
+        ->assertJsonPath('data.is_joined', true)
+        ->assertJsonPath('data.participants_count', 1);
+
+    expect($activity->participants()->where('user_id', $user->id)->exists())->toBeTrue();
+});
+
+test('beitreten ist idempotent – doppelter Beitritt zählt nur einmal', function () {
+    $user = User::factory()->create();
+    $activity = Activity::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->postJson("/api/activities/{$activity->id}/join")->assertOk();
+    $this->withToken($token)->postJson("/api/activities/{$activity->id}/join")
+        ->assertOk()
+        ->assertJsonPath('data.participants_count', 1);
+
+    expect($activity->participants()->count())->toBe(1);
+});
+
+test('austreten entfernt den User wieder', function () {
+    $user = User::factory()->create();
+    $activity = Activity::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $activity->participants()->attach($user->id);
+
+    $this->withToken($token)->deleteJson("/api/activities/{$activity->id}/join")
+        ->assertOk()
+        ->assertJsonPath('data.is_joined', false)
+        ->assertJsonPath('data.participants_count', 0);
+
+    expect($activity->participants()->count())->toBe(0);
+});
+
+test('beitreten braucht einen Token', function () {
+    $activity = Activity::factory()->create();
+
+    $this->postJson("/api/activities/{$activity->id}/join")->assertUnauthorized();
+});
+
 test('activity anlegen speichert ein Banner-Bild', function () {
     Storage::fake('public');
 

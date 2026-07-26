@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/activities', [ActivityController::class, 'index']);
     Route::post('/activities', [ActivityController::class, 'store']);
+    Route::get('/activities/{activity}', [ActivityController::class, 'show']);
+    Route::post('/activities/{activity}/join', [ActivityController::class, 'join']);
+    Route::delete('/activities/{activity}/join', [ActivityController::class, 'leave']);
 });
